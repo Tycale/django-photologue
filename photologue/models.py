@@ -126,6 +126,7 @@ IMAGE_TRANSPOSE_CHOICES = (
 WATERMARK_STYLE_CHOICES = (
     ('tile', _('Tile')),
     ('scale', _('Scale')),
+    ('mark', _('WaterMark')),
 )
 
 # Prepare a list of image filters

@@ -4,7 +4,6 @@ Original found here:
 http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/362879
 
 """
-
 try:
     import Image
     import ImageEnhance
@@ -48,17 +47,26 @@ def apply_watermark(im, mark, position, opacity=1):
         h = int(mark.size[1] * ratio)
         mark = mark.resize((w, h))
         layer.paste(mark, ((im.size[0] - w) / 2, (im.size[1] - h) / 2))
+    elif position == 'mark':
+        # watermark in bottom right
+        ratio = min(
+            float(im.size[0]/5) / mark.size[0] , float(im.size[1]/5) / mark.size[1])
+        w = int(mark.size[0] * ratio)
+        h = int(mark.size[1] * ratio)
+        mark = mark.resize((w, h))
+        x = int(im.size[0] - mark.size[0]) - 10
+        y = int(im.size[1] - mark.size[1]) - 10
+        layer.paste(mark, (x,y))
     else:
         layer.paste(mark, position)
     # composite the watermark with the layer
     return Image.composite(layer, im, layer)
 
 def test():
-    im = Image.open('test.png')
+    im = Image.open('IMG2.JPG')
+
     mark = Image.open('overlay.png')
-    watermark(im, mark, 'tile', 0.5).show()
-    watermark(im, mark, 'scale', 1.0).show()
-    watermark(im, mark, (100, 100), 0.5).show()
+    apply_watermark(im, mark, 'mark', 0.95).show()
 
 if __name__ == '__main__':
     test()
