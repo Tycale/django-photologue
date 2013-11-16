@@ -1,11 +1,13 @@
 import os
 from django.conf import settings
-from django.core.files.base import ContentFile
-from photologue.models import Image, Photo, PHOTOLOGUE_DIR
-from photologue.tests.helpers import LANDSCAPE_IMAGE_PATH, PhotologueBaseTest, \
-QUOTING_IMAGE_PATH
+from ..models import Image, Photo, PHOTOLOGUE_DIR
+from .factories import LANDSCAPE_IMAGE_PATH, QUOTING_IMAGE_PATH, \
+    PhotoFactory
+from .helpers import PhotologueBaseTest
+
 
 class PhotoTest(PhotologueBaseTest):
+
     def tearDown(self):
         """Delete any extra test files (if created)."""
         super(PhotoTest, self).tearDown()
@@ -20,15 +22,15 @@ class PhotoTest(PhotologueBaseTest):
         self.assertEqual(os.path.getsize(self.pl.image.path),
                          os.path.getsize(LANDSCAPE_IMAGE_PATH))
 
-    #def test_exif(self):
+    # def test_exif(self):
     #    self.assertTrue(len(self.pl.EXIF.keys()) > 0)
 
     def test_paths(self):
         self.assertEqual(os.path.normpath(str(self.pl.cache_path())).lower(),
                          os.path.normpath(os.path.join(settings.MEDIA_ROOT,
-                                      PHOTOLOGUE_DIR,
-                                      'photos',
-                                      'cache')).lower())
+                                                       PHOTOLOGUE_DIR,
+                                                       'photos',
+                                                       'cache')).lower())
         self.assertEqual(self.pl.cache_url(),
                          settings.MEDIA_URL + PHOTOLOGUE_DIR + '/photos/cache')
 
@@ -59,11 +61,11 @@ class PhotoTest(PhotologueBaseTest):
         self.assertEqual(self.pl.get_testPhotoSize_size(),
                          Image.open(self.pl.get_testPhotoSize_filename()).size)
         self.assertEqual(self.pl.get_testPhotoSize_url(),
-                         self.pl.cache_url() + '/' + \
+                         self.pl.cache_url() + '/' +
                          self.pl._get_filename_for_size(self.s))
         self.assertEqual(self.pl.get_testPhotoSize_filename(),
                          os.path.join(self.pl.cache_path(),
-                         self.pl._get_filename_for_size(self.s)))
+                                      self.pl._get_filename_for_size(self.s)))
 
     def test_quoted_url(self):
         """Test for issue #29 - filenames of photos are incorrectly quoted when
@@ -74,14 +76,6 @@ class PhotoTest(PhotologueBaseTest):
                          self.pl.cache_url() + '/test_photologue_landscape_testPhotoSize.jpg')
 
         # Now create a Photo with a name that needs quoting.
-        self.pl2 = Photo(title='test', title_slug='test')
-        self.pl2.image.save(os.path.basename(QUOTING_IMAGE_PATH),
-                           ContentFile(open(QUOTING_IMAGE_PATH, 'rb').read()))
-        self.pl2.save()
+        self.pl2 = PhotoFactory(image__from_path=QUOTING_IMAGE_PATH)
         self.assertEqual(self.pl2.get_testPhotoSize_url(),
                          self.pl2.cache_url() + '/test_photologue_%26quoting_testPhotoSize.jpg')
-
-
-
-
-
